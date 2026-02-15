@@ -1,49 +1,66 @@
-<p align="center">
-<img alt="GriefPrevention" width=100% height=auto src="https://repository-images.githubusercontent.com/68339667/9b3f7c00-ce61-11ea-82d1-208eaa0606e8">
-</p>
+# GriefPrevention — Forged with Alloy
 
-<h1 align="center">The self-service anti-griefing plugin for Minecraft servers since 2011</h1>
+Land claim and anti-griefing mod for Minecraft, rebuilt from scratch for the [Alloy](https://github.com/arch-linux/alloy) modding ecosystem.
 
-<p align="center">
-<a href="https://github.com/GriefPrevention/GriefPrevention/releases/"><img alt="Downloads" src="https://img.shields.io/badge/Downloads-green" height="70px"></a>
-<a href="https://r.griefprevention.com/docs"><img alt="Docs" src="https://img.shields.io/badge/Docs-gray?logo=readthedocs&logoColor=white" height="70px"></a>
-<a href="#support"><img alt="Get Help" src="https://img.shields.io/badge/Get%20Help-yellow?logo=amazoncloudwatch&logoColor=white" height="70px"></a>
+> Based on the original [GriefPrevention](https://github.com/GriefPrevention/GriefPrevention) by BigScary. Rebuilt entirely — no Bukkit, no Spigot, no legacy code.
 
-</p>
-  
-Stop _responding_ to grief and prevent it instead. GriefPrevention stops grief before it starts automatically without any effort from administrators, and with very little (self service) effort from players.
+## Features
 
-##### [Watch this video](https://www.youtube.com/watch?v=hKrA6NXn7Sc) to learn more how GriefPrevention works in-game.
-[![GriefPrevention Youtube Tutorial](https://img.youtube.com/vi/hKrA6NXn7Sc/0.jpg)](https://www.youtube.com/watch?v=hKrA6NXn7Sc)
+- **Land claiming** — Players create rectangular claims with a golden shovel
+- **Trust system** — Hierarchical permissions: Access, Container, Build, Manage, Edit
+- **PvP protection** — Safe zones inside claims, combat logging prevention
+- **Grief prevention** — Block break/place, entity damage, explosion, fire spread protection
+- **Admin tools** — Admin claims, claim investigation, size restrictions, cleanup
+- **Automatic claim blocks** — Players earn claim blocks over time
+- **Flat file storage** — JSON-based, one file per claim and player
 
----
+## Building
 
-## Supported Platforms: Spigot, Paper, and Purpur. 
-### GriefPrevention targets and supports the latest available version of these platforms. Older versions of GriefPrevention can be found on [BukkitDev](https://dev.bukkit.org/projects/grief-prevention/files). These older versions are not supported.
-Other server implementations of the Bukkit API _should_ work, but are untested.
+Requires the [Alloy](https://github.com/arch-linux/alloy) repo cloned alongside this one (default: `~/Desktop/alloy`).
 
-## Download
-### [Download the GriefPrevention.jar plugin here.](https://github.com/GriefPrevention/GriefPrevention/releases/)
+```bash
+# Build the alloy-api and alloy-loader JARs first
+cd ~/Desktop/alloy
+./gradlew :alloy-api:jar :alloy-loader:jar
 
-## Addons
-### [Addons](https://r.griefprevention.com/addons) provide additional features to GriefPrevention. Some of these addons are listed in [GitHub Discussions](https://r.griefprevention.com/addons)
+# Build GriefPrevention
+cd ~/Desktop/GriefPrevention
+./gradlew jar
+```
 
-## Support
-- [📖 Documentation](https://r.griefprevention.com/docs) - Learn how GriefPrevention works. Contains answers to most questions.
-- [Issue Tracker](https://github.com/GriefPrevention/GriefPrevention/issues) - Report problems or bugs on the issue tracker. Check if someone else reported your issue before posting.
-- [GitHub Discussions](https://github.com/GriefPrevention/GriefPrevention/discussions) - New ideas, feature requests, or other general discussions.
-- [IRC Chat](https://griefprevention.com/chat/) or [Discord](https://r.griefprevention.com/dumcord/)
+The JAR is output to `build/libs/GriefPrevention-<version>-mc<mcVersion>.jar`.
 
-## GriefPrevention Legacy
+### Release to Desktop
 
-GriefPrevention Legacy is the "friendly" name of GriefPrevention version 16. GriefPrevention version 16 will continue to be officially supported with new updates and releases, and is currently the version we recommend for use on production servers.
+```bash
+./gradlew release
+```
 
-GriefPrevention Legacy's development exists in the `legacy/v16` branch; be sure to target this branch if you intend to create any pull requests for GriefPrevention Legacy.
+Builds the JAR and copies it to `~/Desktop/`.
 
-## Version 17 and above
+### Custom Alloy location
 
-Newer major versions of GriefPrevention are developed on the `master` branch. These new versions contain **breaking changes.** Please **do not** use these versions of GriefPrevention on production servers!
+```bash
+./gradlew jar -PalloyHome=/path/to/alloy
+```
 
----
+## 30+ Commands
 
-[![Weird flex but ok](https://bstats.org/signatures/bukkit/GriefPrevention-legacy.svg)](https://bstats.org/plugin/bukkit/GriefPrevention-legacy)
+| Command | Description |
+|---|---|
+| `/claim` | Create a claim at your location |
+| `/unclaim` `/abandonclaim` | Remove your claim |
+| `/trust <player>` | Grant build trust |
+| `/containertrust <player>` | Grant container access |
+| `/accesstrust <player>` | Grant interaction access |
+| `/managetrust <player>` | Grant management rights |
+| `/untrust <player>` | Revoke trust |
+| `/trustlist` | View trust in current claim |
+| `/claimlist` | List your claims |
+| `/adminclaims` | Toggle admin claim mode |
+| `/claiminfo` | View claim details |
+| ...and more | Full command list in game with `/gp help` |
+
+## License
+
+[MIT](LICENSE.txt)
