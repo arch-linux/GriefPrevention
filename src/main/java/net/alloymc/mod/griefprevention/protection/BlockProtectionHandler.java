@@ -54,6 +54,11 @@ public class BlockProtectionHandler implements Listener {
         Claim claim = mod.claimManager().getClaimAt(event.block().location());
         if (claim == null) return;
 
+        // Admin claim access check
+        if (claim.isAdminClaim() && mod.canAccessAdminClaim(player)) {
+            return;
+        }
+
         String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.BUILD);
         if (denial != null) {
             event.setCancelled(true);
@@ -96,6 +101,11 @@ public class BlockProtectionHandler implements Listener {
 
         if (claim == null) return;
 
+        // Admin claim access check
+        if (claim.isAdminClaim() && mod.canAccessAdminClaim(player)) {
+            return;
+        }
+
         String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.BUILD);
         if (denial != null) {
             event.setCancelled(true);
@@ -114,6 +124,11 @@ public class BlockProtectionHandler implements Listener {
 
         Claim claim = mod.claimManager().getClaimAt(event.block().location());
         if (claim == null) return;
+
+        // Admin claim access check
+        if (claim.isAdminClaim() && mod.canAccessAdminClaim(player)) {
+            return;
+        }
 
         String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.BUILD);
         if (denial != null) {

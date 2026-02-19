@@ -49,7 +49,13 @@ public final class AdminCommands {
         public boolean execute(CommandSender sender, String label, String[] args) {
             if (!sender.isPlayer()) { sender.sendMessage(Messages.PLAYER_ONLY); return true; }
             Player player = (Player) sender;
-            mod.claimManager().getPlayerData(player.uniqueId()).setShovelMode(ShovelMode.ADMIN);
+            if (!player.hasPermission("griefprevention.adminclaims")) {
+                player.sendMessage(Messages.NO_PERMISSION, Player.MessageType.ERROR);
+                return true;
+            }
+            PlayerData data = mod.claimManager().getPlayerData(player.uniqueId());
+            data.setShovelMode(ShovelMode.ADMIN);
+            mod.dataStore().savePlayerData(player.uniqueId(), data);
             player.sendMessage(Messages.SHOVEL_ADMIN, Player.MessageType.SUCCESS);
             return true;
         }
@@ -69,7 +75,9 @@ public final class AdminCommands {
         public boolean execute(CommandSender sender, String label, String[] args) {
             if (!sender.isPlayer()) { sender.sendMessage(Messages.PLAYER_ONLY); return true; }
             Player player = (Player) sender;
-            mod.claimManager().getPlayerData(player.uniqueId()).setShovelMode(ShovelMode.BASIC);
+            PlayerData data = mod.claimManager().getPlayerData(player.uniqueId());
+            data.setShovelMode(ShovelMode.BASIC);
+            mod.dataStore().savePlayerData(player.uniqueId(), data);
             player.sendMessage(Messages.SHOVEL_BASIC, Player.MessageType.SUCCESS);
             return true;
         }
@@ -89,7 +97,9 @@ public final class AdminCommands {
         public boolean execute(CommandSender sender, String label, String[] args) {
             if (!sender.isPlayer()) { sender.sendMessage(Messages.PLAYER_ONLY); return true; }
             Player player = (Player) sender;
-            mod.claimManager().getPlayerData(player.uniqueId()).setShovelMode(ShovelMode.SUBDIVIDE);
+            PlayerData data = mod.claimManager().getPlayerData(player.uniqueId());
+            data.setShovelMode(ShovelMode.SUBDIVIDE);
+            mod.dataStore().savePlayerData(player.uniqueId(), data);
             player.sendMessage(Messages.SHOVEL_SUBDIVIDE, Player.MessageType.SUCCESS);
             return true;
         }
@@ -111,6 +121,7 @@ public final class AdminCommands {
             Player player = (Player) sender;
             PlayerData data = mod.claimManager().getPlayerData(player.uniqueId());
             data.setIgnoringClaims(!data.isIgnoringClaims());
+            mod.dataStore().savePlayerData(player.uniqueId(), data);
             player.sendMessage(data.isIgnoringClaims() ? Messages.IGNORE_CLAIMS_ON : Messages.IGNORE_CLAIMS_OFF,
                     Player.MessageType.SUCCESS);
             return true;
@@ -208,6 +219,11 @@ public final class AdminCommands {
             if (opt.isEmpty()) { player.sendMessage(Messages.PLAYER_NOT_FOUND, Player.MessageType.ERROR); return true; }
             Player target = opt.get();
 
+            // Remove from old owner's claim list
+            if (claim.ownerID() != null) {
+                mod.claimManager().getPlayerData(claim.ownerID()).claims().remove(claim);
+            }
+
             claim.setOwnerID(target.uniqueId());
             mod.claimManager().getPlayerData(target.uniqueId()).claims().add(claim);
             mod.dataStore().saveClaim(claim);
@@ -289,13 +305,11 @@ public final class AdminCommands {
             }
 
             int count = 0;
-            for (var p : AlloyAPI.server().onlinePlayers()) {
-                if (p instanceof Player player) {
-                    PlayerData data = mod.claimManager().getPlayerData(player.uniqueId());
-                    data.addBonusClaimBlocks(amount);
-                    mod.dataStore().savePlayerData(player.uniqueId(), data);
-                    count++;
-                }
+            for (var player : AlloyAPI.server().onlinePlayers()) {
+                PlayerData data = mod.claimManager().getPlayerData(player.uniqueId());
+                data.addBonusClaimBlocks(amount);
+                mod.dataStore().savePlayerData(player.uniqueId(), data);
+                count++;
             }
 
             sender.sendMessage("\u00a7aAdjusted bonus claim blocks by " + amount + " for " + count + " players.");

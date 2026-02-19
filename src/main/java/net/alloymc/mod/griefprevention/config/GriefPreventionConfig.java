@@ -51,6 +51,7 @@ public class GriefPreventionConfig {
     public boolean claimsVillagerTradingRequiresPermission = true;
     public boolean claimsAllowTrappedInAdminClaims = false;
     public boolean claimsDeliverManuals = true;
+    public double claimsBlockPurchaseCost = 1.0; // cost per block in economy currency
 
     public Material claimsInvestigationTool = Material.STICK;
     public Material claimsModificationTool = Material.GOLDEN_SHOVEL;
@@ -149,6 +150,11 @@ public class GriefPreventionConfig {
         claimsFireDamages = boolProp(props, "claims.fire-damages", claimsFireDamages);
         claimsRavagersBreakBlocks = boolProp(props, "claims.ravagers-break-blocks", claimsRavagersBreakBlocks);
         claimsLecternReadingRequiresAccessTrust = boolProp(props, "claims.lectern-requires-access", claimsLecternReadingRequiresAccessTrust);
+        claimsVillagerTradingRequiresPermission = boolProp(props, "claims.villager-trading-requires-permission", claimsVillagerTradingRequiresPermission);
+        claimsAllowTrappedInAdminClaims = boolProp(props, "claims.allow-trapped-in-admin-claims", claimsAllowTrappedInAdminClaims);
+        claimsExpirationExemptTotalBlocks = intProp(props, "claims.expiration-exempt-total-blocks", claimsExpirationExemptTotalBlocks);
+        claimsExpirationExemptBonusBlocks = intProp(props, "claims.expiration-exempt-bonus-blocks", claimsExpirationExemptBonusBlocks);
+        claimsBlockPurchaseCost = doubleProp(props, "claims.block-purchase-cost", claimsBlockPurchaseCost);
 
         pvpProtectFreshSpawns = boolProp(props, "pvp.protect-fresh-spawns", pvpProtectFreshSpawns);
         pvpPunishLogout = boolProp(props, "pvp.punish-logout", pvpPunishLogout);
@@ -174,6 +180,7 @@ public class GriefPreventionConfig {
         creaturesTrampleCrops = boolProp(props, "entity.creatures-trample-crops", creaturesTrampleCrops);
         rabbitsEatCrops = boolProp(props, "entity.rabbits-eat-crops", rabbitsEatCrops);
         zombiesBreakDoors = boolProp(props, "entity.zombies-break-doors", zombiesBreakDoors);
+        mobProjectilesChangeBlocks = boolProp(props, "entity.mob-projectiles-change-blocks", mobProjectilesChangeBlocks);
 
         limitSkyTrees = boolProp(props, "trees.limit-sky-trees", limitSkyTrees);
         limitTreeGrowth = boolProp(props, "trees.limit-growth", limitTreeGrowth);
@@ -182,6 +189,8 @@ public class GriefPreventionConfig {
         try { pistonMode = PistonMode.valueOf(pistonStr.toUpperCase()); } catch (Exception ignored) {}
 
         spamEnabled = boolProp(props, "spam.enabled", spamEnabled);
+        spamLoginCooldownSeconds = intProp(props, "spam.login-cooldown-seconds", spamLoginCooldownSeconds);
+        spamWarningMessage = props.getProperty("spam.warning-message", spamWarningMessage);
         smartBan = boolProp(props, "admin.smart-ban", smartBan);
         maxPlayersPerIp = intProp(props, "admin.max-players-per-ip", maxPlayersPerIp);
     }
@@ -216,6 +225,11 @@ public class GriefPreventionConfig {
         props.setProperty("claims.fire-damages", String.valueOf(claimsFireDamages));
         props.setProperty("claims.ravagers-break-blocks", String.valueOf(claimsRavagersBreakBlocks));
         props.setProperty("claims.lectern-requires-access", String.valueOf(claimsLecternReadingRequiresAccessTrust));
+        props.setProperty("claims.villager-trading-requires-permission", String.valueOf(claimsVillagerTradingRequiresPermission));
+        props.setProperty("claims.allow-trapped-in-admin-claims", String.valueOf(claimsAllowTrappedInAdminClaims));
+        props.setProperty("claims.expiration-exempt-total-blocks", String.valueOf(claimsExpirationExemptTotalBlocks));
+        props.setProperty("claims.expiration-exempt-bonus-blocks", String.valueOf(claimsExpirationExemptBonusBlocks));
+        props.setProperty("claims.block-purchase-cost", String.valueOf(claimsBlockPurchaseCost));
 
         props.setProperty("pvp.protect-fresh-spawns", String.valueOf(pvpProtectFreshSpawns));
         props.setProperty("pvp.punish-logout", String.valueOf(pvpPunishLogout));
@@ -241,12 +255,15 @@ public class GriefPreventionConfig {
         props.setProperty("entity.creatures-trample-crops", String.valueOf(creaturesTrampleCrops));
         props.setProperty("entity.rabbits-eat-crops", String.valueOf(rabbitsEatCrops));
         props.setProperty("entity.zombies-break-doors", String.valueOf(zombiesBreakDoors));
+        props.setProperty("entity.mob-projectiles-change-blocks", String.valueOf(mobProjectilesChangeBlocks));
 
         props.setProperty("trees.limit-sky-trees", String.valueOf(limitSkyTrees));
         props.setProperty("trees.limit-growth", String.valueOf(limitTreeGrowth));
         props.setProperty("pistons.mode", pistonMode.name());
 
         props.setProperty("spam.enabled", String.valueOf(spamEnabled));
+        props.setProperty("spam.login-cooldown-seconds", String.valueOf(spamLoginCooldownSeconds));
+        props.setProperty("spam.warning-message", spamWarningMessage);
         props.setProperty("admin.smart-ban", String.valueOf(smartBan));
         props.setProperty("admin.max-players-per-ip", String.valueOf(maxPlayersPerIp));
 

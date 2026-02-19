@@ -2,12 +2,14 @@ package net.alloymc.mod.griefprevention;
 
 import net.alloymc.api.AlloyAPI;
 import net.alloymc.api.command.Command;
+import net.alloymc.api.entity.Player;
 import net.alloymc.api.event.EventBus;
 import net.alloymc.mod.griefprevention.claim.Claim;
 import net.alloymc.mod.griefprevention.claim.ClaimManager;
 import net.alloymc.mod.griefprevention.claim.ClaimsMode;
 import net.alloymc.mod.griefprevention.command.AdminCommands;
 import net.alloymc.mod.griefprevention.command.ClaimCommands;
+import net.alloymc.mod.griefprevention.command.EconomyCommands;
 import net.alloymc.mod.griefprevention.command.TrustCommands;
 import net.alloymc.mod.griefprevention.command.UtilityCommands;
 import net.alloymc.mod.griefprevention.config.GriefPreventionConfig;
@@ -77,6 +79,7 @@ public class GriefPreventionMod implements net.alloymc.loader.api.ModInitializer
         ClaimCommands.registerAll(this);
         TrustCommands.registerAll(this);
         AdminCommands.registerAll(this);
+        EconomyCommands.registerAll(this);
         UtilityCommands.registerAll(this);
         LOGGER.info("Commands registered.");
 
@@ -124,6 +127,15 @@ public class GriefPreventionMod implements net.alloymc.loader.api.ModInitializer
     }
 
     /**
+     * Checks if a player can access an admin claim.
+     * Returns true if the player has griefprevention.adminclaims permission.
+     */
+    public boolean canAccessAdminClaim(Player player) {
+        // Check if player has permission OR is an OP
+        return player.hasPermission("griefprevention.adminclaims") || player.isOp();
+    }
+
+    /**
      * Returns the claims mode for a given world.
      */
     public ClaimsMode getClaimsMode(String worldName) {
@@ -167,5 +179,8 @@ public class GriefPreventionMod implements net.alloymc.loader.api.ModInitializer
         reg.register("griefprevention.softmute", "Soft-mute players");
         reg.register("griefprevention.reload", "Reload configuration");
         reg.register("griefprevention.eavesdrop", "See soft-muted messages");
+        reg.register("griefprevention.buyclaimblocks", "Purchase claim blocks with currency");
+        reg.register("griefprevention.giveclaimblocks", "Give claim blocks to players");
+        reg.register("griefprevention.claimflags", "View and toggle per-claim flags");
     }
 }

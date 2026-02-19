@@ -30,6 +30,7 @@ public final class UtilityCommands {
         mod.registerCommand(new SoftMuteCommand(mod));
         mod.registerCommand(new SeparateCommand(mod));
         mod.registerCommand(new UnseparateCommand(mod));
+        mod.registerCommand(new GpHelpCommand());
     }
 
     // ---- /trapped ----

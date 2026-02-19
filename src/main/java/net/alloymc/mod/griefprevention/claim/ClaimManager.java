@@ -92,7 +92,8 @@ public class ClaimManager {
             Claim tempClaim = new Claim(0, ownerID, worldName, x1, y1, z1, x2, y2, z2, null);
             for (Claim existing : claims) {
                 if (existing.overlaps(tempClaim)) {
-                    return CreateClaimResult.failure("This claim would overlap an existing claim.");
+                    return CreateClaimResult.overlapFailure(
+                            "This claim would overlap an existing claim.", existing);
                 }
             }
         }
@@ -168,6 +169,7 @@ public class ClaimManager {
      * Find the claim at a given location (checks subclaims first, then parent).
      */
     public Claim getClaimAt(Location location) {
+        if (location == null || location.world() == null) return null;
         int x = (int) Math.floor(location.x());
         int y = (int) Math.floor(location.y());
         int z = (int) Math.floor(location.z());

@@ -170,12 +170,9 @@ public class FlatFileDataStore implements DataStore {
 
     @Override
     public void saveAll(ClaimManager claimManager) {
-        // Save all claims
+        // Save all top-level claims (subclaims are embedded in parent JSON)
         for (Claim claim : claimManager.allClaims()) {
             saveClaim(claim);
-            for (Claim child : claim.children()) {
-                saveClaim(child);
-            }
         }
 
         // Save all player data
@@ -214,7 +211,6 @@ public class FlatFileDataStore implements DataStore {
         obj.addProperty("greaterX", claim.greaterX());
         obj.addProperty("greaterY", claim.greaterY());
         obj.addProperty("greaterZ", claim.greaterZ());
-        obj.addProperty("explosivesAllowed", claim.areExplosivesAllowed());
         obj.addProperty("inheritNothing", claim.inheritNothing());
         obj.addProperty("modified", claim.modifiedDate().toString());
 
@@ -235,6 +231,15 @@ public class FlatFileDataStore implements DataStore {
             mgrs.add(m);
         }
         obj.add("managers", mgrs);
+
+        // Flags
+        if (!claim.flags().isEmpty()) {
+            JsonObject flagsObj = new JsonObject();
+            for (Map.Entry<String, Boolean> entry : claim.flags().entrySet()) {
+                flagsObj.addProperty(entry.getKey(), entry.getValue());
+            }
+            obj.add("flags", flagsObj);
+        }
 
         // Subclaims
         JsonArray children = new JsonArray();
@@ -259,9 +264,25 @@ public class FlatFileDataStore implements DataStore {
                 obj.get("greaterX").getAsInt(), obj.get("greaterY").getAsInt(), obj.get("greaterZ").getAsInt(),
                 null);
 
-        if (obj.has("explosivesAllowed")) claim.setExplosivesAllowed(obj.get("explosivesAllowed").getAsBoolean());
         if (obj.has("inheritNothing")) claim.setInheritNothing(obj.get("inheritNothing").getAsBoolean());
         if (obj.has("modified")) claim.setModifiedDate(Instant.parse(obj.get("modified").getAsString()));
+
+        // Load flags
+        if (obj.has("flags")) {
+            for (Map.Entry<String, JsonElement> entry : obj.getAsJsonObject("flags").entrySet()) {
+                claim.setFlag(entry.getKey(), entry.getValue().getAsBoolean());
+            }
+        }
+
+        // Migrate legacy explosivesAllowed into flags system
+        if (obj.has("explosivesAllowed") && !obj.has("flags")) {
+            claim.setExplosivesAllowed(obj.get("explosivesAllowed").getAsBoolean());
+        } else if (obj.has("explosivesAllowed") && obj.has("flags")) {
+            JsonObject flagsObj = obj.getAsJsonObject("flags");
+            if (!flagsObj.has("explosions")) {
+                claim.setExplosivesAllowed(obj.get("explosivesAllowed").getAsBoolean());
+            }
+        }
 
         // Permissions
         if (obj.has("permissions")) {
@@ -299,6 +320,8 @@ public class FlatFileDataStore implements DataStore {
         obj.addProperty("accruedClaimBlocks", data.accruedClaimBlocks());
         obj.addProperty("bonusClaimBlocks", data.bonusClaimBlocks());
         obj.addProperty("softMuted", data.isSoftMuted());
+        obj.addProperty("shovelMode", data.shovelMode().name());
+        obj.addProperty("ignoringClaims", data.isIgnoringClaims());
         return GSON.toJson(obj);
     }
 
@@ -308,6 +331,14 @@ public class FlatFileDataStore implements DataStore {
         data.setAccruedClaimBlocks(obj.has("accruedClaimBlocks") ? obj.get("accruedClaimBlocks").getAsInt() : 0);
         data.setBonusClaimBlocks(obj.has("bonusClaimBlocks") ? obj.get("bonusClaimBlocks").getAsInt() : 0);
         data.setSoftMuted(obj.has("softMuted") && obj.get("softMuted").getAsBoolean());
+        if (obj.has("shovelMode")) {
+            try {
+                data.setShovelMode(net.alloymc.mod.griefprevention.claim.ShovelMode.valueOf(obj.get("shovelMode").getAsString()));
+            } catch (IllegalArgumentException ignored) {}
+        }
+        if (obj.has("ignoringClaims")) {
+            data.setIgnoringClaims(obj.get("ignoringClaims").getAsBoolean());
+        }
         return data;
     }
 }

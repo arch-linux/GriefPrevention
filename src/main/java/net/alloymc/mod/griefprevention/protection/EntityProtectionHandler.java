@@ -105,6 +105,7 @@ public class EntityProtectionHandler implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onEntityInteract(EntityInteractEvent event) {
+        if (event.block() == null) return;
         if (event.block().type() == Material.FARMLAND && !config().creaturesTrampleCrops) {
             event.setCancelled(true);
         }
@@ -253,7 +254,7 @@ public class EntityProtectionHandler implements Listener {
         String worldName = event.entity().world().name();
         ClaimsMode mode = mod.getClaimsMode(worldName);
 
-        Iterator<net.alloymc.api.block.Block> it = event.affectedBlocks().iterator();
+        Iterator<Block> it = event.affectedBlocks().iterator();
         while (it.hasNext()) {
             Block block = it.next();
             Claim claim = mod.claimManager().getClaimAt(block.location());

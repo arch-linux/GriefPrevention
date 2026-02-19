@@ -29,7 +29,7 @@ val mcVersion: String = project.findProperty("mcVersion")?.toString()
         ?.maxByOrNull { it.lastModified() }?.name
     ?: "unknown"
 
-val modVersion = "1.0.0"
+val modVersion = "1.1.0"
 
 version = "$modVersion-mc$mcVersion"
 
@@ -74,10 +74,10 @@ tasks.register<Copy>("release") {
 
 dependencies {
     // Alloy API — the modding surface
-    implementation(files("$alloyHome/alloy-api/build/libs").filter { it.extension == "jar" })
+    compileOnly(fileTree("$alloyHome/alloy-api/build/libs") { include("*.jar") })
 
     // Alloy Loader — for ModInitializer interface
-    implementation(files("$alloyHome/alloy-loader/build/libs").filter { it.extension == "jar" })
+    compileOnly(fileTree("$alloyHome/alloy-loader/build/libs") { include("*.jar") })
 
     // JSON parsing for data persistence
     implementation("com.google.code.gson:gson:2.11.0")

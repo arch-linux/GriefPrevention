@@ -95,6 +95,25 @@ public final class Messages {
     public static final String NO_PERMISSION = "\u00a7cYou don't have permission to use that command.";
     public static final String USAGE = "\u00a7cUsage: %s";
 
+    // ---- Economy / Claim Blocks ----
+    public static final String BUY_BLOCKS_SUCCESS = "\u00a7aPurchased %d claim blocks for \u00a7f$%.2f\u00a7a. You now have %d claim blocks available.";
+    public static final String BUY_BLOCKS_INSUFFICIENT_FUNDS = "\u00a7cNot enough funds. Cost: $%.2f, your balance: $%.2f. You can afford %d blocks.";
+    public static final String GIVE_BLOCKS_SUCCESS = "\u00a7aGave %d bonus claim blocks to %s. Their new bonus total: %d";
+    public static final String GIVE_BLOCKS_RECEIVED = "\u00a7aYou received %d bonus claim blocks from an admin. You now have %d claim blocks available.";
+
+    // ---- Claim Flags ----
+    public static final String FLAGS_HEADER = "\u00a7e--- Claim Flags (ID: %d) ---";
+    public static final String FLAG_ENTRY = "\u00a77  %s: %s \u00a78- %s";
+    public static final String FLAG_ON = "\u00a7aON";
+    public static final String FLAG_OFF = "\u00a7cOFF";
+    public static final String FLAG_SET = "\u00a7aFlag \u00a7f%s\u00a7a set to \u00a7f%s\u00a7a.";
+    public static final String FLAG_UNKNOWN = "\u00a7cUnknown flag: %s. Use /claimflags to see available flags.";
+
+    // ---- Help ----
+    public static final String HELP_HEADER = "\u00a76--- GriefPrevention Commands ---";
+    public static final String HELP_CATEGORY = "\u00a7e%s:";
+    public static final String HELP_ENTRY = "\u00a7a  /%s \u00a77- %s";
+
     // ---- Reload ----
     public static final String CONFIG_RELOADED = "\u00a7aGriefPrevention configuration reloaded.";
 }

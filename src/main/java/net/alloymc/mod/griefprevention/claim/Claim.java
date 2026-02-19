@@ -38,8 +38,10 @@ public class Claim {
     private Claim parent;
     private final List<Claim> children = new ArrayList<>();
 
+    // Flags: per-claim toggles for public interaction control
+    private final Map<String, Boolean> flags = new HashMap<>();
+
     // State
-    private boolean explosivesAllowed;
     private boolean inheritNothing; // for subclaims: if true, don't inherit parent permissions
     private Instant modifiedDate;
 
@@ -111,6 +113,7 @@ public class Claim {
     }
 
     public boolean contains(Location location, boolean ignoreHeight) {
+        if (location == null || location.world() == null) return false;
         if (!location.world().name().equals(worldName)) return false;
         return contains(
                 (int) Math.floor(location.x()),
@@ -244,12 +247,38 @@ public class Claim {
         return !isSubclaim();
     }
 
-    // ---- State ----
+    // ---- Flags ----
 
-    public boolean areExplosivesAllowed() { return explosivesAllowed; }
-    public void setExplosivesAllowed(boolean allowed) {
-        this.explosivesAllowed = allowed;
+    /**
+     * Gets the value of a claim flag. Returns the flag's default if not explicitly set.
+     */
+    public boolean getFlag(String key) {
+        Boolean val = flags.get(key.toLowerCase());
+        if (val != null) return val;
+        ClaimFlag def = ClaimFlag.fromKey(key);
+        return def != null ? def.defaultValue() : false;
+    }
+
+    /**
+     * Sets a claim flag value.
+     */
+    public void setFlag(String key, boolean value) {
+        flags.put(key.toLowerCase(), value);
         modifiedDate = Instant.now();
+    }
+
+    /**
+     * Returns an unmodifiable copy of all explicitly set flags.
+     */
+    public Map<String, Boolean> flags() {
+        return Map.copyOf(flags);
+    }
+
+    // ---- State (explosives delegates to flags) ----
+
+    public boolean areExplosivesAllowed() { return getFlag(ClaimFlag.EXPLOSIONS.key()); }
+    public void setExplosivesAllowed(boolean allowed) {
+        setFlag(ClaimFlag.EXPLOSIONS.key(), allowed);
     }
 
     public boolean inheritNothing() { return inheritNothing; }

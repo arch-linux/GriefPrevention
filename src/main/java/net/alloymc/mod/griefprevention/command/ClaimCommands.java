@@ -31,6 +31,7 @@ public final class ClaimCommands {
         mod.registerCommand(new ExtendClaimCommand(mod));
         mod.registerCommand(new ClaimsListCommand(mod));
         mod.registerCommand(new ClaimExplosionsCommand(mod));
+        mod.registerCommand(new ClaimFlagsCommand(mod));
     }
 
     // ---- /claim ----

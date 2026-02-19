@@ -2,6 +2,7 @@ package net.alloymc.mod.griefprevention.protection;
 
 import net.alloymc.api.AlloyAPI;
 import net.alloymc.api.block.Block;
+import net.alloymc.api.entity.EntityType;
 import net.alloymc.api.entity.Player;
 import net.alloymc.api.event.EventHandler;
 import net.alloymc.api.event.EventPriority;
@@ -22,6 +23,7 @@ import net.alloymc.api.inventory.Material;
 import net.alloymc.api.world.Location;
 import net.alloymc.mod.griefprevention.GriefPreventionMod;
 import net.alloymc.mod.griefprevention.claim.Claim;
+import net.alloymc.mod.griefprevention.claim.ClaimFlag;
 import net.alloymc.mod.griefprevention.claim.ClaimPermission;
 import net.alloymc.mod.griefprevention.claim.ShovelMode;
 import net.alloymc.mod.griefprevention.config.GriefPreventionConfig;
@@ -109,6 +111,11 @@ public class PlayerProtectionHandler implements Listener {
             Claim claim = mod.claimManager().getClaimAt(clicked.location());
             if (claim == null) return;
 
+            // Admin claim access check
+            if (claim.isAdminClaim() && mod.canAccessAdminClaim(player)) {
+                return;
+            }
+
             Material type = clicked.type();
 
             // Container protection
@@ -119,88 +126,106 @@ public class PlayerProtectionHandler implements Listener {
                     || type == Material.SMITHING_TABLE || type == Material.JUKEBOX
                     || type == Material.DECORATED_POT || type == Material.COMPOSTER
                     || type == Material.CAULDRON) {
-                String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.CONTAINER);
-                if (denial != null) {
-                    event.setCancelled(true);
-                    player.sendMessage(String.format(Messages.NO_CONTAINER_PERMISSION,
-                            mod.ownerName(claim)), Player.MessageType.ERROR);
-                    return;
+                // Check containers flag — if enabled, all players can access containers
+                if (!claim.getFlag(ClaimFlag.CONTAINERS.key())) {
+                    String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.CONTAINER);
+                    if (denial != null) {
+                        event.setCancelled(true);
+                        player.sendMessage(String.format(Messages.NO_CONTAINER_PERMISSION,
+                                mod.ownerName(claim)), Player.MessageType.ERROR);
+                        return;
+                    }
                 }
             }
 
             // Lectern
             if (type == Material.LECTERN && config().claimsLecternReadingRequiresAccessTrust) {
-                String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
-                if (denial != null) {
-                    event.setCancelled(true);
-                    player.sendMessage(String.format(Messages.NO_ACCESS_PERMISSION,
-                            mod.ownerName(claim)), Player.MessageType.ERROR);
-                    return;
+                // Check interact flag — lecterns are part of interact
+                if (!claim.getFlag(ClaimFlag.INTERACT.key())) {
+                    String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
+                    if (denial != null) {
+                        event.setCancelled(true);
+                        player.sendMessage(String.format(Messages.NO_ACCESS_PERMISSION,
+                                mod.ownerName(claim)), Player.MessageType.ERROR);
+                        return;
+                    }
                 }
             }
 
             // Door protection
             if (type.isDoor() && config().claimsLockWoodenDoors && type != Material.IRON_DOOR) {
-                String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
-                if (denial != null) {
-                    event.setCancelled(true);
-                    player.sendMessage(String.format(Messages.NO_ACCESS_PERMISSION,
-                            mod.ownerName(claim)), Player.MessageType.ERROR);
-                    return;
+                if (!claim.getFlag(ClaimFlag.DOORS.key())) {
+                    String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
+                    if (denial != null) {
+                        event.setCancelled(true);
+                        player.sendMessage(String.format(Messages.NO_ACCESS_PERMISSION,
+                                mod.ownerName(claim)), Player.MessageType.ERROR);
+                        return;
+                    }
                 }
             }
 
             // Trapdoor protection
             if (type.isTrapdoor() && config().claimsLockTrapDoors) {
-                String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
-                if (denial != null) {
-                    event.setCancelled(true);
-                    player.sendMessage(String.format(Messages.NO_ACCESS_PERMISSION,
-                            mod.ownerName(claim)), Player.MessageType.ERROR);
-                    return;
+                if (!claim.getFlag(ClaimFlag.DOORS.key())) {
+                    String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
+                    if (denial != null) {
+                        event.setCancelled(true);
+                        player.sendMessage(String.format(Messages.NO_ACCESS_PERMISSION,
+                                mod.ownerName(claim)), Player.MessageType.ERROR);
+                        return;
+                    }
                 }
             }
 
             // Fence gate protection
             if (type.isFenceGate() && config().claimsLockFenceGates) {
-                String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
-                if (denial != null) {
-                    event.setCancelled(true);
-                    player.sendMessage(String.format(Messages.NO_ACCESS_PERMISSION,
-                            mod.ownerName(claim)), Player.MessageType.ERROR);
-                    return;
+                if (!claim.getFlag(ClaimFlag.DOORS.key())) {
+                    String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
+                    if (denial != null) {
+                        event.setCancelled(true);
+                        player.sendMessage(String.format(Messages.NO_ACCESS_PERMISSION,
+                                mod.ownerName(claim)), Player.MessageType.ERROR);
+                        return;
+                    }
                 }
             }
 
             // Button/lever protection
             if ((type.isButton() || type == Material.LEVER) && config().claimsPreventButtonsSwitches) {
-                String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
-                if (denial != null) {
-                    event.setCancelled(true);
-                    player.sendMessage(String.format(Messages.NO_ACCESS_PERMISSION,
-                            mod.ownerName(claim)), Player.MessageType.ERROR);
-                    return;
+                if (!claim.getFlag(ClaimFlag.BUTTONS.key())) {
+                    String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
+                    if (denial != null) {
+                        event.setCancelled(true);
+                        player.sendMessage(String.format(Messages.NO_ACCESS_PERMISSION,
+                                mod.ownerName(claim)), Player.MessageType.ERROR);
+                        return;
+                    }
                 }
             }
 
             // Bed protection
             if (type.isBed()) {
-                String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
-                if (denial != null) {
-                    event.setCancelled(true);
-                    player.sendMessage(String.format(Messages.NO_ACCESS_PERMISSION,
-                            mod.ownerName(claim)), Player.MessageType.ERROR);
-                    return;
+                if (!claim.getFlag(ClaimFlag.INTERACT.key())) {
+                    String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
+                    if (denial != null) {
+                        event.setCancelled(true);
+                        player.sendMessage(String.format(Messages.NO_ACCESS_PERMISSION,
+                                mod.ownerName(claim)), Player.MessageType.ERROR);
+                        return;
+                    }
                 }
             }
 
             // Cake
             if (type == Material.CAKE) {
-                String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
-                if (denial != null) {
-                    event.setCancelled(true);
-                    player.sendMessage(String.format(Messages.NO_ACCESS_PERMISSION,
-                            mod.ownerName(claim)), Player.MessageType.ERROR);
+                if (!claim.getFlag(ClaimFlag.INTERACT.key())) {
+                    String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
+                    if (denial != null) {
+                        event.setCancelled(true);
+                        player.sendMessage(String.format(Messages.NO_ACCESS_PERMISSION,
+                                mod.ownerName(claim)), Player.MessageType.ERROR);
+                    }
                 }
             }
         }
@@ -211,6 +236,11 @@ public class PlayerProtectionHandler implements Listener {
                 if (!data.isIgnoringClaims()) {
                     Claim claim = mod.claimManager().getClaimAt(event.clickedBlock().location());
                     if (claim != null) {
+                        // Admin claim access check
+                        if (claim.isAdminClaim() && mod.canAccessAdminClaim(player)) {
+                            return;
+                        }
+
                         String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.BUILD);
                         if (denial != null) {
                             event.setCancelled(true);
@@ -230,10 +260,14 @@ public class PlayerProtectionHandler implements Listener {
         if (data.isIgnoringClaims()) return;
 
         // Villager trading protection
-        if (event.rightClicked().type() == net.alloymc.api.entity.EntityType.VILLAGER
+        if (event.rightClicked().type() == EntityType.VILLAGER
                 && config().claimsVillagerTradingRequiresPermission) {
             Claim claim = mod.claimManager().getClaimAt(event.rightClicked().location());
             if (claim != null) {
+                // Admin claim access check
+                if (claim.isAdminClaim() && mod.canAccessAdminClaim(player)) {
+                    return;
+                }
                 String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.CONTAINER);
                 if (denial != null) {
                     event.setCancelled(true);
@@ -257,6 +291,10 @@ public class PlayerProtectionHandler implements Listener {
 
         Claim claim = mod.claimManager().getClaimAt(event.to());
         if (claim != null) {
+            // Admin claim access check
+            if (claim.isAdminClaim() && mod.canAccessAdminClaim(player)) {
+                return;
+            }
             String denial = claim.checkPermission(player.uniqueId(), ClaimPermission.ACCESS);
             if (denial != null) {
                 event.setCancelled(true);
@@ -271,6 +309,7 @@ public class PlayerProtectionHandler implements Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBucket(PlayerBucketEvent event) {
         Player player = event.player();
+        if (event.block() == null) return;
         PlayerData data = mod.claimManager().getPlayerData(player.uniqueId());
         if (data.isIgnoringClaims()) return;
 
@@ -391,12 +430,10 @@ public class PlayerProtectionHandler implements Listener {
         if (data.isSoftMuted()) {
             event.setCancelled(true);
             // Still let admins and other soft-muted players see it
-            for (var onlinePlayer : AlloyAPI.server().onlinePlayers()) {
-                if (onlinePlayer instanceof Player p) {
-                    if (p.hasPermission("griefprevention.eavesdrop")
-                            || mod.claimManager().getPlayerData(p.uniqueId()).isSoftMuted()) {
-                        p.sendMessage("\u00a77[muted] " + player.displayName() + ": " + event.message());
-                    }
+            for (var p : AlloyAPI.server().onlinePlayers()) {
+                if (p.hasPermission("griefprevention.eavesdrop")
+                        || mod.claimManager().getPlayerData(p.uniqueId()).isSoftMuted()) {
+                    p.sendMessage("\u00a77[muted] " + player.displayName() + ": " + event.message());
                 }
             }
         }
@@ -473,6 +510,9 @@ public class PlayerProtectionHandler implements Listener {
                 ClaimVisualization.show(player, result.claim(), VisualizationType.CLAIM);
             } else {
                 player.sendMessage(result.failureReason(), Player.MessageType.ERROR);
+                if (result.overlapping() != null) {
+                    ClaimVisualization.show(player, result.overlapping(), VisualizationType.CONFLICT);
+                }
             }
 
             data.setLastShovelLocation(null);
@@ -510,6 +550,9 @@ public class PlayerProtectionHandler implements Listener {
                 ClaimVisualization.show(player, result.claim(), VisualizationType.ADMIN_CLAIM);
             } else {
                 player.sendMessage(result.failureReason(), Player.MessageType.ERROR);
+                if (result.overlapping() != null) {
+                    ClaimVisualization.show(player, result.overlapping(), VisualizationType.CONFLICT);
+                }
             }
 
             data.setLastShovelLocation(null);
@@ -548,6 +591,9 @@ public class PlayerProtectionHandler implements Listener {
                 ClaimVisualization.show(player, result.claim(), VisualizationType.SUBDIVISION);
             } else {
                 player.sendMessage(result.failureReason(), Player.MessageType.ERROR);
+                if (result.overlapping() != null) {
+                    ClaimVisualization.show(player, result.overlapping(), VisualizationType.CONFLICT);
+                }
             }
 
             data.setLastShovelLocation(null);
