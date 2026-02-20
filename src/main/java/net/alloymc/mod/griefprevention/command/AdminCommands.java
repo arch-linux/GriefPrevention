@@ -215,6 +215,17 @@ public final class AdminCommands {
                 return true;
             }
 
+            // Must be admin claim or the sender must own it
+            if (claim.isAdminClaim() && !player.hasPermission("griefprevention.adminclaims")) {
+                player.sendMessage(Messages.NOT_YOUR_CLAIM, Player.MessageType.ERROR);
+                return true;
+            }
+            if (!claim.isAdminClaim() && claim.ownerID() != null
+                    && !claim.ownerID().equals(player.uniqueId())) {
+                player.sendMessage(Messages.NOT_YOUR_CLAIM, Player.MessageType.ERROR);
+                return true;
+            }
+
             var opt = AlloyAPI.server().player(args[0]);
             if (opt.isEmpty()) { player.sendMessage(Messages.PLAYER_NOT_FOUND, Player.MessageType.ERROR); return true; }
             Player target = opt.get();

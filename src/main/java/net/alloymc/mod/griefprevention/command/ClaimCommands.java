@@ -153,7 +153,14 @@ public final class ClaimCommands {
             // Navigate to top-level
             while (claim.parent() != null) claim = claim.parent();
 
-            if (claim.ownerID() != null && !claim.ownerID().equals(player.uniqueId())
+            // Admin claims require admin permission
+            if (claim.isAdminClaim() && !player.hasPermission("griefprevention.adminclaims")) {
+                player.sendMessage(Messages.NOT_YOUR_CLAIM, Player.MessageType.ERROR);
+                return true;
+            }
+            // Other players' claims require deleteclaims permission
+            if (!claim.isAdminClaim() && claim.ownerID() != null
+                    && !claim.ownerID().equals(player.uniqueId())
                     && !player.hasPermission("griefprevention.deleteclaims")) {
                 player.sendMessage(Messages.NOT_YOUR_CLAIM, Player.MessageType.ERROR);
                 return true;
@@ -249,7 +256,14 @@ public final class ClaimCommands {
             }
             if (claim.isSubclaim()) claim = claim.parent();
 
-            if (claim.ownerID() != null && !claim.ownerID().equals(player.uniqueId())
+            // Admin claims require admin permission
+            if (claim.isAdminClaim() && !player.hasPermission("griefprevention.adminclaims")) {
+                player.sendMessage(Messages.NOT_YOUR_CLAIM, Player.MessageType.ERROR);
+                return true;
+            }
+            // Other players' claims require deleteclaims permission
+            if (!claim.isAdminClaim() && claim.ownerID() != null
+                    && !claim.ownerID().equals(player.uniqueId())
                     && !player.hasPermission("griefprevention.deleteclaims")) {
                 player.sendMessage(Messages.NOT_YOUR_CLAIM, Player.MessageType.ERROR);
                 return true;
